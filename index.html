@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>吉吉吉｜作品集相簿</title>
+  <meta name="description" content="吉吉吉的設計作品集：平面設計、插畫、自媒體、金犢獎等精選。" />
+  <style>
+    :root{
+      --bg:#0b0e14;--panel:#121826;--text:#e6eefb;--muted:#a8b3c7;--brand:#6ab3ff;--line:rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#0d1220);color:var(--text);
+         font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans TC',sans-serif}
+    header{position:sticky;top:0;background:rgba(12,16,28,.6);backdrop-filter:saturate(140%) blur(10px);
+           border-bottom:1px solid var(--line);z-index:10}
+    .wrap{max-width:1120px;margin:auto;padding:18px 20px}
+    h1{margin:0;font-size:clamp(20px,3.4vw,30px);letter-spacing:.3px}
+    p.sub{margin:6px 0 0;color:var(--muted);font-size:13px}
+    main{padding:14px 20px}
+    .grid{max-width:1120px;margin:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+    .card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+          box-shadow:0 10px 26px rgba(0,0,0,.35)}
+    .thumb{display:block;width:100%;height:230px;object-fit:cover}
+    .cap{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;color:var(--muted);font-size:12px}
+    .pill{font-size:11px;border:1px solid rgba(106,179,255,.5);color:var(--brand);background:rgba(106,179,255,.12);
+          padding:2px 8px;border-radius:999px}
+    footer{padding:38px 20px;color:var(--muted);text-align:center}
+    /* lightbox */
+    .lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75);
+              backdrop-filter:blur(4px);z-index:100}
+    .lightbox.open{display:flex}
+    .lightbox img{max-width:min(92vw,1200px);max-height:84vh;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+    .close{position:fixed;top:14px;right:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;
+           border-radius:10px;padding:8px 10px;font-size:14px;cursor:pointer}
+    .filters{max-width:1120px;margin:0 auto 6px auto;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
+    .chip{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);cursor:pointer;background:rgba(255,255,255,.05)}
+    .chip.active{border-color:rgba(106,179,255,.6);box-shadow:0 0 0 2px rgba(106,179,255,.2) inset}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>吉吉吉的作品集</h1>
+      <p class="sub">分類展示：平面設計／插畫／自媒體／金犢獎</p>
+    </div>
+  </header>
+
+  <div class="filters" id="filters"></div>
+
+  <main>
+    <div id="grid" class="grid" aria-live="polite"></div>
+  </main>
+
+  <footer>
+    <small>© <span id="yy"></span> 吉吉吉 · 相簿</small>
+  </footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="查看大圖">
+    <img alt="預覽" />
+    <button class="close" id="closeBox">關閉 Esc</button>
+  </div>
+
+<script>
+const exts = ['jpg','jpeg','png','webp'];
+const samples = [ // 範例圖片，實際替換為你的圖檔
+  {src:'images/01_平面設計.jpg',tag:'平面設計'},
+  {src:'images/02_插畫.png',tag:'插畫'},
+  {src:'images/03_自媒體.jpg',tag:'自媒體'},
+  {src:'images/04_金犢獎.png',tag:'金犢獎'}
+];
+
+const grid = document.getElementById('grid');
+const filters = document.getElementById('filters');
+const lightbox = document.getElementById('lightbox');
+const lightImg = lightbox.querySelector('img');
+const closeBox = document.getElementById('closeBox');
+document.getElementById('yy').textContent = new Date().getFullYear();
+
+let allItems = samples.map(s=>s.src);
+let activeTag = '全部';
+
+function getTag(src){
+  const name = src.split('/').pop().split('.')[0];
+  const parts = decodeURIComponent(name).split('_');
+  return parts[1] || '全部';
+}
+
+function render(items){
+  grid.innerHTML = '';
+  items.forEach(src=>{
+    const tag = getTag(src);
+    const fig = document.createElement('figure');
+    fig.className = 'card';
+    fig.dataset.tag = tag;
+    const img = document.createElement('img');
+    img.className = 'thumb';
+    img.loading = 'lazy';
+    img.src = src;
+    img.alt = tag;
+    img.addEventListener('click',()=>{
+      lightImg.src = src;
+      lightbox.classList.add('open');
+    });
+    const cap = document.createElement('figcaption');
+    cap.className = 'cap';
+    const small = document.createElement('small');
+    small.textContent = src.split('/').pop();
+    const pill = document.createElement('span');
+    pill.className = 'pill';
+    pill.textContent = tag;
+    cap.appendChild(small); cap.appendChild(pill);
+    fig.appendChild(img); fig.appendChild(cap);
+    grid.appendChild(fig);
+  });
+}
+
+function renderFilters(){
+  const tags = Array.from(new Set(['全部', ...allItems.map(getTag)]));
+  filters.innerHTML = '';
+  tags.forEach(t=>{
+    const chip = document.createElement('button');
+    chip.className = 'chip' + (t===activeTag?' active':''); chip.textContent = t;
+    chip.addEventListener('click',()=>{
+      activeTag = t;
+      render(allItems.filter(src => activeTag==='全部' || getTag(src)===activeTag));
+      renderFilters();
+    });
+    filters.appendChild(chip);
+  });
+}
+
+closeBox.addEventListener('click',()=> lightbox.classList.remove('open'));
+lightbox.addEventListener('click',(e)=>{ if (e.target===lightbox) lightbox.classList.remove('open'); });
+window.addEventListener('keydown',(e)=>{ if (e.key==='Escape') lightbox.classList.remove('open'); });
+
+render(allItems);
+renderFilters();
+</script>
+</body>
+</html>
