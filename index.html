@@ -6,7 +6,7 @@
   <title>吉吉吉作品集</title>
   <style>
     body{font-family:"Noto Sans TC",sans-serif;margin:0;background:#f7f7fb;color:#222}
-    header{background:#222;color:#fff;text-align:center;padding:18px}
+    header{background:#222;color:#fff;text-align:center;padding:18px;position:sticky;top:0;z-index:10}
     nav{display:flex;gap:14px;justify-content:center;align-items:center;padding:12px}
     nav a{color:#0a63c9;text-decoration:none;font-weight:700}
     nav a:hover{text-decoration:underline}
@@ -19,7 +19,6 @@
     .cap{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;color:#666;font-size:13px}
     .pill{border:1px solid #9cc8ff;background:#eaf3ff;color:#0a63c9;border-radius:999px;padding:2px 8px;font-size:12px}
     footer{color:#777;text-align:center;padding:22px}
-    /* 燈箱 */
     .lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:50}
     .lightbox.open{display:flex}
     .lightbox img{max-width:min(92vw,1200px);max-height:85vh;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -49,16 +48,34 @@
   </div>
 
   <script>
-    // 這裡列出要顯示的圖片（放在 /images/ 資料夾）
-    // 想新增作品：只要再加一行 { src:'images/XX_分類.副檔名', tag:'分類' }
-    const works = [
-      // 範例（請依實際存在的檔案保留/修改）
-      // { src:'images/01_平面設計.jpg', tag:'平面設計' },
-      { src:'images/02_插畫.png', tag:'插畫' },
-      // { src:'images/03_自媒體.jpg', tag:'自媒體' },
-      // { src:'images/04_金犢獎.png', tag:'金犢獎' },
-      { src:'images/06_插畫.png', tag:'插畫' }  // 你剛上傳的這張
-    ];
+    const exts = ['jpg','jpeg','png','webp'];
+    const allowedTags = ['平面設計','繪畫','自媒體','金犢獎'];
+    const MAX = 200;
+
+    async function collectImages(){
+      const probes = [];
+      for (let i=1;i<=MAX;i++){
+        const num = String(i).padStart(2,'0');
+        for (const tag of allowedTags){
+          for (const ext of exts){
+            const src = `images/${num}_${tag}.${ext}`;
+            probes.append = probes.push(check(src, tag));
+          }
+        }
+      }
+      const list = (await Promise.all(probes)).filter(Boolean);
+      list.sort((a,b)=> a.src.localeCompare(b.src, 'zh-Hant'));
+      return list;
+    }
+
+    function check(src, tag){
+      return new Promise(resolve=>{
+        const img = new Image();
+        img.onload = ()=> resolve({src, tag});
+        img.onerror = ()=> resolve(null);
+        img.src = src + '?v=' + Date.now();
+      });
+    }
 
     const grid = document.getElementById('grid');
     const filters = document.getElementById('filters');
@@ -66,16 +83,18 @@
     const lightImg = lightbox.querySelector('img');
     const closeBox = document.getElementById('closeBox');
 
-    let activeTag = '全部';
+    let all = [];
+    let active = '全部';
 
-    function render(items) {
+    function render(items){
       grid.innerHTML = '';
-      items.forEach(item => {
+      items.forEach(item=>{
         const fig = document.createElement('figure');
         fig.className = 'card';
         const img = document.createElement('img');
-        img.src = item.src; img.alt = item.tag; img.loading = 'lazy';
-        img.addEventListener('click', () => { lightImg.src = item.src; lightbox.classList.add('open'); });
+        img.loading = 'lazy'; img.decoding = 'async';
+        img.src = item.src; img.alt = item.tag;
+        img.onclick = ()=>{ lightImg.src = item.src; lightbox.classList.add('open'); };
         const cap = document.createElement('figcaption');
         cap.className = 'cap';
         cap.innerHTML = `<small>${item.src.split('/').pop()}</small><span class="pill">${item.tag}</span>`;
@@ -84,31 +103,28 @@
       });
     }
 
-    function renderFilters() {
-      const tags = Array.from(new Set(['全部', ...works.map(w => w.tag)]));
+    function renderFilters(){
+      const tags = Array.from(new Set(['全部', ...all.map(i=>i.tag)]));
       filters.innerHTML = '';
-      tags.forEach(t => {
+      tags.forEach(t=>{
         const b = document.createElement('button');
-        b.className = 'chip' + (t === activeTag ? ' active' : '');
+        b.className = 'chip' + (t===active?' active':'');
         b.textContent = t;
-        b.onclick = () => { activeTag = t; applyFilter(); renderFilters(); };
+        b.onclick = ()=>{ active=t; apply(); renderFilters(); };
         filters.appendChild(b);
       });
     }
 
-    function applyFilter() {
-      const list = activeTag === '全部' ? works : works.filter(w => w.tag === activeTag);
+    function apply(){
+      const list = active==='全部' ? all : all.filter(i=>i.tag===active);
       render(list);
     }
 
-    // 燈箱關閉
-    closeBox.onclick = () => lightbox.classList.remove('open');
-    lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.classList.remove('open'); });
-    window.addEventListener('keydown', e => { if (e.key === 'Escape') lightbox.classList.remove('open'); });
+    closeBox.onclick = ()=> lightbox.classList.remove('open');
+    lightbox.addEventListener('click', e=>{ if(e.target===lightbox) lightbox.classList.remove('open'); });
+    window.addEventListener('keydown', e=>{ if(e.key==='Escape') lightbox.classList.remove('open'); });
 
-    // 啟動
-    applyFilter();
-    renderFilters();
+    collectImages().then(list=>{ all=list; apply(); renderFilters(); });
   </script>
 </body>
 </html>

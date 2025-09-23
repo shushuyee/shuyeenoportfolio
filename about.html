@@ -5,68 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>關於我 | 吉吉吉作品集</title>
   <style>
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      margin: 0;
-      background: #f7f7fb;
-      color: #333;
-      line-height: 1.8;
-    }
-    header {
-      background: #222;
-      color: #fff;
-      text-align: center;
-      padding: 18px;
-    }
-    nav {
-      display: flex;
-      gap: 14px;
-      justify-content: center;
-      align-items: center;
-      padding: 12px;
-    }
-    nav a {
-      color: #0a63c9;
-      text-decoration: none;
-      font-weight: 700;
-    }
+    body { font-family: "Noto Sans TC", sans-serif; margin: 0; background: #f7f7fb; color: #333; line-height: 1.8; }
+    header { background: #222; color: #fff; text-align: center; padding: 18px; position: sticky; top: 0; z-index: 10; }
+    nav { display: flex; gap: 14px; justify-content: center; align-items: center; padding: 12px; }
+    nav a { color: #0a63c9; text-decoration: none; font-weight: 700; }
     nav a:hover { text-decoration: underline; }
-    .container {
-      max-width: 900px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .profile {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .profile img {
-      max-width: 240px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
-    h2 {
-      margin-top: 20px;
-      color: #444;
-    }
-    ul {
-      padding-left: 20px;
-    }
-    a {
-      color: #0066cc;
-      text-decoration: none;
-    }
+    .container { max-width: 900px; margin: 30px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .profile { text-align: center; margin-bottom: 30px; }
+    .profile img { max-width: 240px; border-radius: 8px; margin-bottom: 15px; }
+    h2 { margin-top: 20px; color: #444; }
+    ul { padding-left: 20px; }
+    a { color: #0066cc; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    footer {
-      text-align: center;
-      margin-top: 30px;
-      padding: 15px;
-      font-size: 14px;
-      color: #777;
-    }
+    footer { text-align: center; margin-top: 30px; padding: 15px; font-size: 14px; color: #777; }
   </style>
 </head>
 <body>
@@ -80,13 +31,9 @@
 
   <div class="container">
     <div class="profile">
-      <!-- 🖼️ 換成你自己上傳到 /images/ 的照片檔名，例如 profile.jpg -->
       <img src="images/profile.jpg" alt="個人照片">
       <h2>謝秀宜（阿吉）</h2>
-      <p>
-        普良 / 營肝 / 設計人<br>
-        也許不是最頂尖的人才，但卻是願意負責且畫力的繪者。
-      </p>
+      <p>普良 / 營肝 / 設計人<br>也許不是最頂尖的人才，但卻是願意負責且畫力的繪者。</p>
     </div>
 
     <h2>擅長技能</h2>
